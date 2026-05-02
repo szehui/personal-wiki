@@ -8,6 +8,13 @@ wiki_root = os.path.expanduser('~/wiki')
 clippings_dir = os.path.join(wiki_root, 'Clippings')
 
 def main():
+    # Sync with GitHub first to pull in clippings added from other machines
+    print("🔄 Syncing from GitHub to pull latest clippings...")
+    try:
+        subprocess.run(['git', 'pull', '--rebase'], cwd=wiki_root, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"⚠️ Git pull failed. Continuing with local files. Error: {e}")
+
     if not os.path.exists(clippings_dir):
         print(f"Clippings directory not found: {clippings_dir}")
         sys.exit(0)
