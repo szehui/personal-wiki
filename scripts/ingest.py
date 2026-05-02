@@ -54,22 +54,15 @@ def update_summary(md_path, summary_text):
     fm, body = read_frontmatter(md_path)
     fm['summary_text'] = summary_text
     
-    # Let's clean up any bad formatting that got stuck in the body from a previous run
-    lines = body.splitlines()
+    # Need to clean up bad formatting again since it kept breaking due to read issue
+    lines = "\n".join(body).splitlines() if isinstance(body, list) else body.splitlines()
     clean_lines = []
-    in_bad_fm = False
     for l in lines:
-        if l.startswith("title:") or l.startswith("Title:") or l.startswith("URL Source:") or l.startswith("Published Time:") or l.startswith("Markdown Content:") or l.startswith("summary_text:"):
-            pass # Skip these if they accidentally leaked into the body
-        elif l.strip() == "---" and not in_bad_fm:
-            in_bad_fm = True
-        elif l.strip() == "---" and in_bad_fm:
-            in_bad_fm = False
-        else:
-            if not in_bad_fm:
-                clean_lines.append(l)
-    
-    write_frontmatter_dict(md_path, fm, body="\\n".join(clean_lines))
+        if l.startswith("Title:") or l.startswith("title:") or l.startswith("URL Source:") or l.startswith("Published Time:") or l.startswith("Markdown Content:") or l.startswith("summary_text:") or l.startswith("---"):
+            continue
+        clean_lines.append(l)
+        
+    write_frontmatter_dict(md_path, fm, body="\n".join(clean_lines))
 
 def summarize_sources(concept_md_path):
     fm, _ = read_frontmatter(concept_md_path)
