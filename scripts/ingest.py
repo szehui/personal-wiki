@@ -54,8 +54,40 @@ def update_summary(md_path, summary_text):
     fm, body = read_frontmatter(md_path)
     fm['summary_text'] = summary_text
     
+    # Check if there is an existing body to append a link back to sources
+    sources = fm.get('sources', [])
+    source_links = ""
+    if sources:
+        if isinstance(sources, str):
+            try:
+                srcs = ast.literal_eval(sources)
+            except Exception:
+                # Fallback simple parse if array formatting is loose
+                s = sources.strip('[]')
+                srcs = [x.strip() for x in s.split(',')] if s else []
+        elif isinstance(sources, list):
+            srcs = sources
+        
+        # Build the source reference links
+        if srcs:
+            source_links = "\n\n## Sources\n"
+            for s in srcs:
+                s_clean = s.strip()
+                # Create a wiki link reference to the raw file
+                source_links += f"- [[{s_clean}]]\n"
+                
+    # Append the source link to body if it doesn't already exist
+    body_text = ""
+    if isinstance(body, list):
+        body_text = "\n".join(body)
+    else:
+        body_text = body
+        
+    if source_links and "## Sources" not in body_text:
+        body_text += source_links
+
     # Need to clean up bad formatting again since it kept breaking due to read issue
-    lines = "\n".join(body).splitlines() if isinstance(body, list) else body.splitlines()
+    lines = body_text.splitlines()
     clean_lines = []
     for l in lines:
         if l.startswith("Title:") or l.startswith("title:") or l.startswith("URL Source:") or l.startswith("Published Time:") or l.startswith("Markdown Content:") or l.startswith("summary_text:") or l.startswith("---") or "**" in l:
@@ -104,7 +136,18 @@ def summarize_sources(concept_md_path):
             if len(l) > 20:
                 clean_lines.append(l)
     
-    summary_text = " ".join(clean_lines[:5])
+    # Parse args for summary length limits
+    import argparse
+    # We are using a basic sys.argv parser currently, let's just grab options if present
+    summary_sentence_limit = 3 # default 3 sentences
+    if '--summary-sentences' in sys.argv:
+        try:
+            qty = int(sys.argv[sys.argv.index('--summary-sentences') + 1])
+            summary_sentence_limit = qty
+        except (ValueError, IndexError):
+            pass
+            
+    summary_text = " ".join(clean_lines[:summary_sentence_limit])
     
     update_summary(concept_md_path, summary_text)
 
