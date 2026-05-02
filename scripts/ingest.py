@@ -58,7 +58,7 @@ def update_summary(md_path, summary_text):
     lines = "\n".join(body).splitlines() if isinstance(body, list) else body.splitlines()
     clean_lines = []
     for l in lines:
-        if l.startswith("Title:") or l.startswith("title:") or l.startswith("URL Source:") or l.startswith("Published Time:") or l.startswith("Markdown Content:") or l.startswith("summary_text:") or l.startswith("---"):
+        if l.startswith("Title:") or l.startswith("title:") or l.startswith("URL Source:") or l.startswith("Published Time:") or l.startswith("Markdown Content:") or l.startswith("summary_text:") or l.startswith("---") or "**" in l:
             continue
         clean_lines.append(l)
         
@@ -104,8 +104,9 @@ def summarize_sources(concept_md_path):
         l = re.sub(r'\[.*?\]\(.*?\)', '', l)
         l = re.sub(r'[*_#]', '', l)
         l = re.sub(r'\[\d+\]', '', l) # remove citation brackets
-        if l and l != "From Wikipedia, the free encyclopedia":
-            clean_lines.append(l)
+        if l and l != "From Wikipedia, the free encyclopedia" and not l.startswith("edit Edit section"):
+            if len(l) > 20: # Make sure it's a real sentence
+                clean_lines.append(l)
     
     summary_text = "\\n".join(clean_lines[:5])
     
