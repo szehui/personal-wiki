@@ -462,9 +462,94 @@ def main():
         
         sync_git(commit_message)
         notify_discord("Note", "Discord text input", domain, tags, concept_title, touched_pages)
+
+    elif cmd == 'clip':
+        if len(sys.argv) >= 3:
+            clip_path = sys.argv[2]
+        else:
+            print("Provide a file path to ingest")
+            sys.exit(2)
+            
+        if not os.path.exists(clip_path):
+            print(f"File not found: {clip_path}")
+            sys.exit(1)
+            
+        if '--domain' in sys.argv:
+            idx = sys.argv.index('--domain')
+            domain = sys.argv[idx+1] if idx+1 < len(sys.argv) else None
+            
+        if not domain:
+            domain = 'personal-knowledge' # Default for batch scripts and avoid interactive pause in cron
+            
+        if '--tags' in sys.argv:
+            idx = sys.argv.index('--tags')
+            tags = sys.argv[idx+1].split(',') if idx+1 < len(sys.argv) else None
+            
+        title = None
+        if '--title' in sys.argv:
+            idx = sys.argv.index('--title')
+            title = sys.argv[idx+1] if idx+1 < len(sys.argv) else None
+            
+        with open(clip_path, 'r') as f:
+            body = f.read()
+            
+        # title fallback: from filename
+        if not title:
+            base_name = os.path.splitext(os.path.basename(clip_path))[0]
+            title = base_name
+
+        body_path_name = slugify(title)
+        body_path = os.path.join(raw_articles, f"{body_path_name}.md")
+        
+        sha = hashlib.sha256(body.encode('utf-8')).hexdigest()
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        
+        # Write to raw_articles with frontmatter
+        write_frontmatter_dict(body_path, {'source_file': os.path.basename(clip_path), 'ingested': today, 'sha256': sha}, body=body)
+        
+        # Remove original clipping
+        os.remove(clip_path)
+
+        if not tags:
+            tags = best_guess_tags(domain, body) or ['article']
+            
+        concept_title = title
+        concept_path = add_or_update_concept(concept_title, [domain], tags, [f"raw/articles/{body_path_name}.md"])
+        
+        touched_pages = []
+        touched_pages.append(os.path.relpath(body_path, wiki_root))
+        touched_pages.append(os.path.relpath(concept_path, wiki_root))
+        
+        tokens = concept_title.split()
+        if len(tokens) > 1:
+            entity_title = tokens[0] + ' ' + tokens[1]
+            entity_path = add_or_update_entity(entity_title, [domain], tags[:2] or ['entity'])
+            touched_pages.append(os.path.relpath(entity_path, wiki_root))
+            
+        update_index_with_concept(concept_title)
+        touched_pages.extend(['index.md', 'log.md'])
+        
+        summarize_sources(concept_path)
+        
+        append_log(f"Clipping ingest: {concept_title} (domain={domain}, tags={tags})")
+        print(f"Ingested clipping into {concept_title}")
+        
+        # Git and Discord
+        iso_time = datetime.datetime.now().isoformat()
+        num_pages = len(touched_pages)
+        commit_message = (
+            f"Ingested (Clipping): {concept_title}\n\n"
+            f"Domain: {domain}\n"
+            f"Tags: {', '.join(tags)}\n"
+            f"Pages touched ({num_pages}):\n  - " + "\n  - ".join(touched_pages) + f"\n"
+            f"Timestamp: {iso_time}"
+        )
+        
+        sync_git(commit_message)
+        notify_discord("Clipping", "Local file", domain, tags, concept_title, touched_pages)
         
     else:
-        print("Unknown command. Use 'url' or 'note'.")
+        print("Unknown command. Use 'url', 'note', or 'clip'.")
 
 if __name__ == '__main__':
     main()
