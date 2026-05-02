@@ -83,10 +83,21 @@ def summarize_sources(concept_md_path):
 
     # Basic summarization: take the first 3 sentences of the combined raw bodies.
     # In a full LLM integration, this would call out to an LLM completion API.
-    combined = " ".join(aggregated)
+    combined = "\\n".join(aggregated)
     import re
-    sentences = [x.strip() for x in re.split(r'(?<=[.!?])\s+', combined) if x.strip()]
-    summary_text = " ".join(sentences[:3])
+    # Basic paragraph splitting since markdown has lines. Taking first few paragraphs is safer than regex sentence splitting.
+    lines = [x.strip() for x in combined.splitlines() if x.strip()]
+    lines = [x for x in lines if not x.startswith("URL Source:") and not x.startswith("Published Time:") and not x.startswith("Markdown Content:") and not x.startswith("Title: ")]
+    
+    # Strip images/markdown
+    clean_lines = []
+    for l in lines:
+        l = re.sub(r'\[.*?\]\(.*?\)', '', l)
+        l = re.sub(r'[*_#]', '', l)
+        if l:
+            clean_lines.append(l)
+    
+    summary_text = "\\n".join(clean_lines[:5])
     
     update_summary(concept_md_path, summary_text)
 
