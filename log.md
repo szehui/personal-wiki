@@ -1,0 +1,20 @@
+---
+title: Wiki Log
+---
+
+# Wiki Log
+
+> Chronological record of all wiki actions. Append-only.
+> Format: `## [YYYY-MM-DD] action | subject`
+> Actions: ingest, update, query, lint, create, archive, delete
+> When this file exceeds 500 entries, rotate: rename to log-YYYY.md, start fresh.
+
+## [2026-05-02] ingest | wiki note: Indie games to try
+- Domain: personal-knowledge
+- Pages touched: indie-games-to-try concept, index updated
+- Tags: indie-games, video-games
+
+## Discord note ingest: I just watched a YouTube video on indie games I should try. I should add Flatout II, Fights In Tight Places, Art of Rally, and Mini Motorways. (domain=personal-knowledge, tags=['indie-games', 'video-games'])
+## URL ingest: https://en.wikipedia.org/wiki/Personal_knowledge_management -> PKM Overview (domain=personal-knowledge, tags=['health'])
+## URL ingest: https://thepointsguy.com/credit-cards/chase-sapphire-preferred-eligibility-sapphire-reserve/ -> Title: Have the Chase Sapphire Preferred? You're likely eligible for the Sapphire Reserve. Here's how (domain=personal-knowledge, tags=['travel'])
+## URL ingest: https://thepointsguy.com/credit-cards/chase-sapphire-preferred-eligibility-sapphire-reserve/ -> Chase Sapphire: Eligibility for Sapphire Reserve (domain=personal-knowledge, tags=['travel'])

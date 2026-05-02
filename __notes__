@@ -1,0 +1,3 @@
+Notes and consolidations about the exercise:  - The URL ingestion now supports a real extraction path using jina.ai
+- Created 4 game entity placeholders and 4 concept pages, with wikilinks from the indie-games-to-try page
+- Added small domain dashboards for cross-domain navigation
