@@ -21,4 +21,4 @@ title: Wiki Index
 - [[title-have-the-chase-sapphire-preferred-you-re-likely-eligible-for-the-sapphire-reserve-here-s-how|Title: Have the Chase Sapphire Preferred? You're likely eligible for the Sapphire Reserve. Here's how]]
 - [[chase-sapphire-eligibility-for-sapphire-reserve|Chase Sapphire: Eligibility for Sapphire Reserve]]
 - [[iso-8601-date-and-time-format|ISO 8601 Date and Time Format]]
-- [[title-chase-ultimate-rewards-points-how-to-redeem-for-maximum-value|Title: Chase Ultimate Rewards points: How to redeem for maximum value]]
+- [[chase-ultimate-rewards-points-how-to-redeem-for-maximum-value|Chase Ultimate Rewards points: How to redeem for maximum value]]
