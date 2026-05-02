@@ -18,3 +18,4 @@ title: Wiki Log
 ## URL ingest: https://en.wikipedia.org/wiki/Personal_knowledge_management -> PKM Overview (domain=personal-knowledge, tags=['health'])
 ## URL ingest: https://thepointsguy.com/credit-cards/chase-sapphire-preferred-eligibility-sapphire-reserve/ -> Title: Have the Chase Sapphire Preferred? You're likely eligible for the Sapphire Reserve. Here's how (domain=personal-knowledge, tags=['travel'])
 ## URL ingest: https://thepointsguy.com/credit-cards/chase-sapphire-preferred-eligibility-sapphire-reserve/ -> Chase Sapphire: Eligibility for Sapphire Reserve (domain=personal-knowledge, tags=['travel'])
+## URL ingest: https://www.iso.org/iso-8601-date-and-time-format.html -> ISO 8601 Date and Time Format (domain=work-knowledge, tags=['companies'])

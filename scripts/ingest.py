@@ -3,13 +3,61 @@ import sys
 import os
 import json
 import hashlib
+import datetime
 from urllib.parse import urlparse
-
-# Placeholder imports for web extraction and wiki manipulation
-# In a real environment, replace these with actual implementations
-
 import urllib.request
 import urllib.error
+import subprocess
+
+def sync_git(commit_message):
+    """
+    Adds, commits, and pushes changes to the git remote.
+    """
+    print("Syncing with git repository...")
+    try:
+        subprocess.run(['git', 'add', '-A'], cwd=wiki_root, check=True)
+        res = subprocess.run(['git', 'commit', '-m', commit_message], cwd=wiki_root, capture_output=True, text=True)
+        if res.returncode == 0:
+            subprocess.run(['git', 'push'], cwd=wiki_root, check=True)
+            print("Successfully synced to remote.")
+        else:
+            print("No changes to commit.")
+    except Exception as e:
+        print(f"Warning: Git sync failed. Ensure your remote is set up and push doesn't require interactive auth. Error: {e}")
+
+def notify_discord(ingest_type, source, domain, tags, concept_title, touched_pages):
+    webhook_url = os.environ.get("DISCORD_WEBHOOK_URL")
+    if not webhook_url:
+        return
+    
+    description = (
+        f"**Concept:** {concept_title}\n"
+        f"**Domain:** {domain}\n"
+        f"**Tags:** {', '.join(tags)}\n"
+        f"**Source:** {source}\n\n"
+        f"**Pages Touched ({len(touched_pages)}):**\n" + 
+        "\n".join([f"- `{p}`" for p in touched_pages])
+    )
+
+    payload = {
+        "embeds": [{
+            "title": f"Wiki Ingest: {ingest_type}",
+            "description": description,
+            "color": 3447003 if ingest_type == "URL" else 10181046,
+            "timestamp": datetime.datetime.utcnow().isoformat() + "Z"
+        }]
+    }
+
+    req = urllib.request.Request(
+        webhook_url, 
+        data=json.dumps(payload).encode('utf-8'), 
+        headers={'Content-Type': 'application/json', 'User-Agent': 'WikiBot/1.0'}
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            pass
+    except Exception as e:
+        print(f"Warning: Failed to post to Discord webhook: {e}")
 
 def web_extract(url):
     """
@@ -26,7 +74,6 @@ def web_extract(url):
         print(f"Warning: Failed to extract {url} - {str(e)}")
         return f"# Article Extraction Failed\n\nURL: {url}\nError: {str(e)}"
 
-
 def slugify(title):
     import re
     slug = title.lower()
@@ -41,11 +88,9 @@ entities_dir = os.path.join(wiki_root, 'entities')
 index_md = os.path.join(wiki_root, 'index.md')
 log_md = os.path.join(wiki_root, 'log.md')
 
-
 def ensure_dirs():
     for d in [raw_articles, concepts_dir, entities_dir]:
         os.makedirs(d, exist_ok=True)
-
 
 def write_frontmatter(path, fm):
     with open(path, 'w') as f:
@@ -54,45 +99,42 @@ def write_frontmatter(path, fm):
             f.write(f"{k}: {v}\n")
         f.write('---\n')
 
-
 def append_log(entry):
     with open(log_md, 'a') as f:
         f.write(f"## {entry}\n")
 
-
 def add_or_update_concept(concept_title, domains, tags, sources):
     slug = slugify(concept_title)
     p = os.path.join(concepts_dir, f"{slug}.md")
+    today = datetime.datetime.now().strftime('%Y-%m-%d')
     if not os.path.exists(p):
         fm = {
             'title': concept_title,
-            'created': '2026-05-02',
-            'updated': '2026-05-02',
+            'created': today,
+            'updated': today,
             'type': 'concept',
             'domains': domains,
-            'tags': ", ".join(tags),
-            'sources': f"[raw/articles/{slug}.md]"
+            'tags': tags,
+            'sources': sources
         }
         write_frontmatter(p, fm)
-    # Append body if needed (not implemented fully here)
     return p
-
 
 def add_or_update_entity(entity_title, domains, tags):
     slug = slugify(entity_title)
     p = os.path.join(entities_dir, f"{slug}.md")
+    today = datetime.datetime.now().strftime('%Y-%m-%d')
     if not os.path.exists(p):
         fm = {
             'title': entity_title,
-            'created': '2026-05-02',
-            'updated': '2026-05-02',
+            'created': today,
+            'updated': today,
             'type': 'entity',
             'domains': domains,
-            'tags': ", ".join(tags)
+            'tags': tags
         }
         write_frontmatter(p, fm)
     return p
-
 
 def best_guess_tags(domain, text):
     taxonomy = {
@@ -102,40 +144,42 @@ def best_guess_tags(domain, text):
     tags = taxonomy.get(domain, [])
     hits = []
     for t in tags:
-        if t in text:
+        if t in text.lower():
             hits.append(t)
     return hits[:4]
 
-
 def update_index_with_concept(concept_title):
     slug = slugify(concept_title)
-    with open(index_md, 'a') as f:
-        f.write(f"- [[{slug}|{concept_title}]]\n")
-
+    with open(index_md, 'r') as f:
+        content = f.read()
+    if f"[[{slug}|{concept_title}]]" not in content:
+        with open(index_md, 'a') as f:
+            f.write(f"- [[{slug}|{concept_title}]]\n")
 
 def main():
     ensure_dirs()
     if len(sys.argv) < 2:
-        print("Usage: ingest.py url|note --domain DOMAIN [--tags TAG1,TAG2] [--notes \"...\"]")
+        print('Usage: ingest.py url|note --domain DOMAIN [--tags TAG1,TAG2] [--title "..." | --notes "..."]')
         sys.exit(1)
+    
     cmd = sys.argv[1]
-    # Very rough argument parsing for demonstration
     domain = None
     tags = None
     title = None
     url = None
     note = None
+    
     if cmd == 'url':
         if len(sys.argv) >= 3:
             url = sys.argv[2]
         else:
             print("Provide a URL to ingest")
             sys.exit(2)
-        # Domain required per user request
+            
         if '--domain' in sys.argv:
             idx = sys.argv.index('--domain')
             domain = sys.argv[idx+1] if idx+1 < len(sys.argv) else None
-        
+            
         if not domain:
             print("Error: --domain is required. Please specify it (e.g., --domain personal-knowledge).")
             sys.exit(1)
@@ -143,40 +187,65 @@ def main():
         if '--tags' in sys.argv:
             idx = sys.argv.index('--tags')
             tags = sys.argv[idx+1].split(',') if idx+1 < len(sys.argv) else None
-        # Optional: title for the concept
+            
         if '--title' in sys.argv:
             idx = sys.argv.index('--title')
             title = sys.argv[idx+1] if idx+1 < len(sys.argv) else None
-        # Fetch article
+            
         body = web_extract(url)
-        body_path_name = slugify(title or urlparse(url).path.split("/")[-1])
+        body_path_name = slugify(title or urlparse(url).path.split("/")[-1] or "article")
         body_path = os.path.join(raw_articles, f"{body_path_name}.md")
+        
         with open(body_path, 'w') as f:
             f.write(body)
+            
         sha = hashlib.sha256(body.encode('utf-8')).hexdigest()
-        # Save raw frontmatter
-        write_frontmatter(body_path, {'source_url': url, 'ingested': '2026-05-02', 'sha256': sha})
-        # Best guess tags if not provided
+        today = datetime.datetime.now().strftime('%Y-%m-%d')
+        write_frontmatter(body_path, {'source_url': url, 'ingested': today, 'sha256': sha})
+        
         if not tags:
-            text = body
-            tags = best_guess_tags(domain, text) or ['article']
+            tags = best_guess_tags(domain, body) or ['article']
+            
         concept_title = title or body.splitlines()[0].strip('# ').strip()
         concept_path = add_or_update_concept(concept_title, [domain], tags, [f"raw/articles/{body_path_name}.md"])
-        # Create placeholder entity if we can detect a named-entity; simplified here
+        
+        touched_pages = []
+        touched_pages.append(os.path.relpath(body_path, wiki_root))
+        touched_pages.append(os.path.relpath(concept_path, wiki_root))
+        
         tokens = concept_title.split()
         if len(tokens) > 1:
             entity_title = tokens[0] + ' ' + tokens[1]
-            add_or_update_entity(entity_title, [domain], tags[:2] or ['entity'])
+            entity_path = add_or_update_entity(entity_title, [domain], tags[:2] or ['entity'])
+            touched_pages.append(os.path.relpath(entity_path, wiki_root))
+            
         update_index_with_concept(concept_title)
+        touched_pages.extend(['index.md', 'log.md'])
+        
         append_log(f"URL ingest: {url} -> {concept_title} (domain={domain}, tags={tags})")
         print(f"Ingested {url} into {concept_title}")
+        
+        # Git and Discord
+        iso_time = datetime.datetime.now().isoformat()
+        num_pages = len(touched_pages)
+        pages_summary = ", ".join(touched_pages)
+        commit_message = (
+            f"Ingested (URL): {concept_title}\n\n"
+            f"Domain: {domain}\n"
+            f"Tags: {', '.join(tags)}\n"
+            f"Pages touched ({num_pages}):\n  - " + "\n  - ".join(touched_pages) + f"\n"
+            f"Timestamp: {iso_time}"
+        )
+        
+        sync_git(commit_message)
+        notify_discord("URL", url, domain, tags, concept_title, touched_pages)
+        
     elif cmd == 'note':
-        # Discord note ingestion (raw note)
         if len(sys.argv) >= 3:
             note = sys.argv[2]
         else:
             note = ''
-        domain = None
+            
         if '--domain' in sys.argv:
             idx = sys.argv.index('--domain')
             domain = sys.argv[idx+1] if idx+1 < len(sys.argv) else None
@@ -188,25 +257,50 @@ def main():
         if '--tags' in sys.argv:
             idx = sys.argv.index('--tags')
             tags = sys.argv[idx+1].split(',') if idx+1 < len(sys.argv) else None
+            
         if not tags:
-            # naive guess from content
             tags = best_guess_tags(domain, note) or ['article']
-        # Save raw note
+            
         transcripts = os.path.join(wiki_root, 'raw', 'transcripts')
         os.makedirs(transcripts, exist_ok=True)
-        import datetime
         fname = f"discord-note-{datetime.datetime.now().strftime('%Y%m%d-%H%M%S')}.md"
-        with open(os.path.join(transcripts, fname), 'w') as f:
+        note_path = os.path.join(transcripts, fname)
+        
+        with open(note_path, 'w') as f:
             f.write(note)
-        concept_title = note.splitlines()[0] if note else 'Discord Note'
+            
+        concept_title = note.splitlines()[0][:50] if note else 'Discord Note'
         concept_path = add_or_update_concept(concept_title, [domain], tags, [f"raw/transcripts/{fname}"])
-        # Create placeholder entity
+        
+        touched_pages = []
+        touched_pages.append(os.path.relpath(note_path, wiki_root))
+        touched_pages.append(os.path.relpath(concept_path, wiki_root))
+        
         if len(concept_title.split()) > 1:
             entity_title = concept_title.split()[0] + ' ' + concept_title.split()[1]
-            add_or_update_entity(entity_title, [domain], tags[:2] or ['entity'])
+            entity_path = add_or_update_entity(entity_title, [domain], tags[:2] or ['entity'])
+            touched_pages.append(os.path.relpath(entity_path, wiki_root))
+            
         update_index_with_concept(concept_title)
+        touched_pages.extend(['index.md', 'log.md'])
+        
         append_log(f"Discord note ingest: {concept_title} (domain={domain}, tags={tags})")
         print(f"Ingested Discord note as concept: {concept_title}")
+        
+        # Git and Discord
+        iso_time = datetime.datetime.now().isoformat()
+        num_pages = len(touched_pages)
+        commit_message = (
+            f"Ingested (Note): {concept_title}\n\n"
+            f"Domain: {domain}\n"
+            f"Tags: {', '.join(tags)}\n"
+            f"Pages touched ({num_pages}):\n  - " + "\n  - ".join(touched_pages) + f"\n"
+            f"Timestamp: {iso_time}"
+        )
+        
+        sync_git(commit_message)
+        notify_discord("Note", "Discord text input", domain, tags, concept_title, touched_pages)
+        
     else:
         print("Unknown command. Use 'url' or 'note'.")
 
