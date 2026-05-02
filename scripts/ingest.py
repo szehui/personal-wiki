@@ -53,7 +53,23 @@ def write_frontmatter(md_path, fm, body=None):
 def update_summary(md_path, summary_text):
     fm, body = read_frontmatter(md_path)
     fm['summary_text'] = summary_text
-    write_frontmatter(md_path, fm, body=body)
+    
+    # Let's clean up any bad formatting that got stuck in the body from a previous run
+    lines = body.splitlines()
+    clean_lines = []
+    in_bad_fm = False
+    for l in lines:
+        if l.startswith("title:") or l.startswith("Title:") or l.startswith("URL Source:") or l.startswith("Published Time:") or l.startswith("Markdown Content:") or l.startswith("summary_text:"):
+            pass # Skip these if they accidentally leaked into the body
+        elif l.strip() == "---" and not in_bad_fm:
+            in_bad_fm = True
+        elif l.strip() == "---" and in_bad_fm:
+            in_bad_fm = False
+        else:
+            if not in_bad_fm:
+                clean_lines.append(l)
+    
+    write_frontmatter_dict(md_path, fm, body="\\n".join(clean_lines))
 
 def summarize_sources(concept_md_path):
     fm, _ = read_frontmatter(concept_md_path)
@@ -94,7 +110,8 @@ def summarize_sources(concept_md_path):
     for l in lines:
         l = re.sub(r'\[.*?\]\(.*?\)', '', l)
         l = re.sub(r'[*_#]', '', l)
-        if l:
+        l = re.sub(r'\[\d+\]', '', l) # remove citation brackets
+        if l and l != "From Wikipedia, the free encyclopedia":
             clean_lines.append(l)
     
     summary_text = "\\n".join(clean_lines[:5])
