@@ -9,8 +9,16 @@ sources: []
 ---
 
 A curated list of indie games to try based on a YouTube video:
-- [[flatout-ii|Flatout II]]
-- [[fights-in-tight-places|Fights In Tight Places]]
-- [[art-of-rally|Art of Rally]]
-- [[mini-motorways|Mini Motorways]]
+- Flatout II
+- Fights In Tight Places
+- Art of Rally
+- Mini Motorways
 
+### Summary (auto-generated)
+This page aggregates raw content from related game pages to present a concise summary of the indie games collection. It pulls summaries from:
+- flatout-ii.md
+- fights-in-tight-places.md
+- art-of-rally.md
+- mini-motorways.md
+
+---

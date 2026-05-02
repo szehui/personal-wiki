@@ -8,6 +8,87 @@ from urllib.parse import urlparse
 import urllib.request
 import urllib.error
 import subprocess
+import ast
+
+def read_frontmatter(md_path):
+    try:
+        with open(md_path, 'r') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        return {}, ''
+    if not lines or lines[0].strip() != '---':
+        return {}, "".join(lines)
+    end = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == '---':
+            end = i
+            break
+    if end is None:
+        return {}, "".join(lines)
+    header = lines[1:end]
+    body = "".join(lines[end+1:])
+    fm = {}
+    for l in header:
+        if ':' in l:
+            k, v = l.split(':', 1)
+            fm[k.strip()] = v.strip()
+    return fm, body
+
+def write_frontmatter(md_path, fm, body=None):
+    with open(md_path, 'w') as f:
+        f.write('---\n')
+        for k, v in fm.items():
+            if k in ('summary', 'summary_text'):
+                continue
+            # Basic serialization for lists/strings in fm
+            f.write(f"{k}: {v}\n")
+        if 'summary_text' in fm:
+            f.write("summary_text: |\n")
+            for s in fm['summary_text'].splitlines():
+                f.write(f"  {s}\n")
+        f.write('---\n')
+        if body:
+            f.write(body)
+
+def update_summary(md_path, summary_text):
+    fm, body = read_frontmatter(md_path)
+    fm['summary_text'] = summary_text
+    write_frontmatter(md_path, fm, body=body)
+
+def summarize_sources(concept_md_path):
+    fm, _ = read_frontmatter(concept_md_path)
+    sources = fm.get('sources', '')
+    srcs = []
+    if isinstance(sources, str):
+        try:
+            srcs = ast.literal_eval(sources)
+        except Exception:
+            # Fallback simple parse if array formatting is loose
+            s = sources.strip('[]')
+            srcs = [x.strip() for x in s.split(',')] if s else []
+    elif isinstance(sources, list):
+        srcs = sources
+
+    aggregated = []
+    for s in srcs:
+        if isinstance(s, str) and (s.startswith('raw/articles/') or s.startswith('raw/transcripts/')):
+            path = os.path.join(wiki_root, s)
+            if os.path.exists(path):
+                _, s_body = read_frontmatter(path)
+                if s_body.strip():
+                    aggregated.append(s_body.strip())
+                    
+    if not aggregated:
+        return
+
+    # Basic summarization: take the first 3 sentences of the combined raw bodies.
+    # In a full LLM integration, this would call out to an LLM completion API.
+    combined = " ".join(aggregated)
+    import re
+    sentences = [x.strip() for x in re.split(r'(?<=[.!?])\s+', combined) if x.strip()]
+    summary_text = " ".join(sentences[:3])
+    
+    update_summary(concept_md_path, summary_text)
 
 def sync_git(commit_message):
     """
@@ -92,12 +173,28 @@ def ensure_dirs():
     for d in [raw_articles, concepts_dir, entities_dir]:
         os.makedirs(d, exist_ok=True)
 
-def write_frontmatter(path, fm):
+def write_frontmatter_dict(path, fm, body=None):
     with open(path, 'w') as f:
         f.write('---\n')
         for k, v in fm.items():
-            f.write(f"{k}: {v}\n")
+            if k == 'summary_text':
+                continue
+            if isinstance(v, list):
+                if k == 'sources':
+                    # Need specific string formatting because literals won't have quotes inside the file
+                    # actually let's just make it look like standard arrays for tags, sources
+                    f.write(f"{k}: [{', '.join(v)}]\n")
+                else:
+                    f.write(f"{k}: [{', '.join(v)}]\n")
+            else:
+                f.write(f"{k}: {v}\n")
+        if 'summary_text' in fm:
+            f.write("summary_text: |\n")
+            for s in fm['summary_text'].splitlines():
+                f.write(f"  {s}\n")
         f.write('---\n')
+        if body:
+            f.write(body)
 
 def append_log(entry):
     with open(log_md, 'a') as f:
@@ -117,7 +214,7 @@ def add_or_update_concept(concept_title, domains, tags, sources):
             'tags': tags,
             'sources': sources
         }
-        write_frontmatter(p, fm)
+        write_frontmatter_dict(p, fm)
     return p
 
 def add_or_update_entity(entity_title, domains, tags):
@@ -133,7 +230,7 @@ def add_or_update_entity(entity_title, domains, tags):
             'domains': domains,
             'tags': tags
         }
-        write_frontmatter(p, fm)
+        write_frontmatter_dict(p, fm)
     return p
 
 def best_guess_tags(domain, text):
@@ -201,7 +298,7 @@ def main():
             
         sha = hashlib.sha256(body.encode('utf-8')).hexdigest()
         today = datetime.datetime.now().strftime('%Y-%m-%d')
-        write_frontmatter(body_path, {'source_url': url, 'ingested': today, 'sha256': sha})
+        write_frontmatter_dict(body_path, {'source_url': url, 'ingested': today, 'sha256': sha}, body=body)
         
         if not tags:
             tags = best_guess_tags(domain, body) or ['article']
@@ -221,6 +318,8 @@ def main():
             
         update_index_with_concept(concept_title)
         touched_pages.extend(['index.md', 'log.md'])
+        
+        summarize_sources(concept_path)
         
         append_log(f"URL ingest: {url} -> {concept_title} (domain={domain}, tags={tags})")
         print(f"Ingested {url} into {concept_title}")
@@ -283,6 +382,8 @@ def main():
             
         update_index_with_concept(concept_title)
         touched_pages.extend(['index.md', 'log.md'])
+        
+        summarize_sources(concept_path)
         
         append_log(f"Discord note ingest: {concept_title} (domain={domain}, tags={tags})")
         print(f"Ingested Discord note as concept: {concept_title}")
