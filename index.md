@@ -24,3 +24,4 @@ title: Wiki Index
 - [[chase-ultimate-rewards-points-how-to-redeem-for-maximum-value|Chase Ultimate Rewards points: How to redeem for maximum value]]
 - [[domain|--domain]]
 - [[art-of-rally|Art of Rally]]
+- [[test-clipping|test_clipping]]

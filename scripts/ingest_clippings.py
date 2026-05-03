@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+# Make script executable
+
 import os
 import glob
 import subprocess
@@ -15,10 +18,9 @@ def main():
     except subprocess.CalledProcessError as e:
         print(f"⚠️ Git pull failed. Continuing with local files. Error: {e}")
 
-    if not os.path.exists(clippings_dir):
-        print(f"Clippings directory not found: {clippings_dir}")
-        sys.exit(0)
-        
+    # Ensure Clippings directory exists; create if missing
+    os.makedirs(clippings_dir, exist_ok=True)
+
     md_files = glob.glob(os.path.join(clippings_dir, '**', '*.md'), recursive=True)
     if not md_files:
         print("No clippings found to ingest.")
