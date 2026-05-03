@@ -30,3 +30,4 @@ title: Wiki Log
 ## Discord note ingest: --domain (domain=personal-knowledge, tags=['gpu'])
 ## Clipping ingest: Art of Rally (domain=personal-knowledge, tags=['article'])
 ## Clipping ingest: test_clipping (domain=personal-knowledge, tags=['article'])
+## Clipping ingest: summary_test (domain=personal-knowledge, tags=['article'])

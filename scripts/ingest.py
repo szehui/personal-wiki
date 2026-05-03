@@ -507,8 +507,11 @@ def main():
         # Write to raw_articles with frontmatter
         write_frontmatter_dict(body_path, {'source_file': os.path.basename(clip_path), 'ingested': today, 'sha256': sha}, body=body)
         
-        # Remove original clipping
-        os.remove(clip_path)
+        # Archive original clipping instead of removing it
+        archive_dir = os.path.join(os.path.dirname(os.path.dirname(clip_path)), 'raw', 'clippings_archive')
+        os.makedirs(archive_dir, exist_ok=True)
+        import shutil
+        shutil.move(clip_path, os.path.join(archive_dir, os.path.basename(clip_path)))
 
         if not tags:
             tags = best_guess_tags(domain, body) or ['article']
