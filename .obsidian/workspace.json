@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "raw/transcripts/discord-note-20260502-105023.md",
+                "file": "Clippings/Art of Rally.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "discord-note-20260502-105023"
+              "title": "Art of Rally"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "raw/transcripts/discord-note-20260502-105023.md",
+                "file": "Clippings/Art of Rally.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for discord-note-20260502-105023"
+              "title": "Backlinks for Art of Rally"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "raw/transcripts/discord-note-20260502-105023.md",
+                "file": "Clippings/Art of Rally.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from discord-note-20260502-105023"
+              "title": "Outgoing links from Art of Rally"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "raw/transcripts/discord-note-20260502-105023.md",
+                "file": "Clippings/Art of Rally.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of discord-note-20260502-105023"
+              "title": "Outline of Art of Rally"
             }
           },
           {
@@ -194,17 +194,20 @@
       "obsidian-git:Open Git source control": false
     }
   },
-  "active": "5730aaa048103b6c",
+  "active": "65f0f2d6dcff1bf2",
   "lastOpenFiles": [
+    "research/note_gpu_advisory.md",
+    "raw/articles/sample.md",
+    "raw/articles/sample-article.md",
+    "Clippings/Art of Rally.md",
+    "raw/transcripts/discord-note-20260502-105023.md",
+    "raw/transcripts/discord-note-20260502-150341.md",
     "scripts/ingest_clippings.py",
     "scripts/__pycache__/ingest_clippings.cpython-311.pyc",
-    "research/note_gpu_advisory.md",
     "research",
-    "raw/transcripts/discord-note-20260502-150341.md",
     "ingest-now.sh",
     "concepts/domain.md",
     "SCHEMA.md",
-    "Clippings/Art of Rally.md",
     "Clippings",
     "raw/Clippings"
   ]
