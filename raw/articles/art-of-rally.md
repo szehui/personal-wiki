@@ -1,4 +1,9 @@
 ---
+source_file: Art of Rally.md
+ingested: 2026-05-03
+sha256: 14f62f5e021cca55d6c6bcebcfd7f0fb8a70a0ac9ca4b992da0c6a664c8576c6
+---
+---
 title: "Art of Rally"
 source: "https://en.wikipedia.org/wiki/Art_of_Rally"
 author:
