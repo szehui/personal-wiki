@@ -28,3 +28,4 @@ title: Wiki Log
 ## URL ingest: https://en.wikipedia.org/wiki/Personal_knowledge_management -> PKM Overview (domain=personal-knowledge, tags=['health'])
 ## URL ingest: https://thepointsguy.com/loyalty-programs/redeeming-chase-ultimate-rewards-maximum-value/ -> Title: Chase Ultimate Rewards points: How to redeem for maximum value (domain=personal-knowledge, tags=['travel', 'points', 'chase ultimate rewards'])
 ## Discord note ingest: --domain (domain=personal-knowledge, tags=['gpu'])
+## Clipping ingest: Art of Rally (domain=personal-knowledge, tags=['article'])
