@@ -31,3 +31,8 @@ title: Wiki Log
 ## Clipping ingest: Art of Rally (domain=personal-knowledge, tags=['article'])
 ## Clipping ingest: test_clipping (domain=personal-knowledge, tags=['article'])
 ## Clipping ingest: summary_test (domain=personal-knowledge, tags=['article'])
+## Clipping ingest: personal-knowledge-dryrun (domain=personal-knowledge, tags=['article'])
+## Discord note ingest: Virginia EMS Scope of Practice: BLS, ALS, and CCT/ (domain=work-knowledge, tags=['ems', 'scope-of-practice', 'virginia', 'regulation', 'bls', 'als', 'critical-care'])
+
+## 2026-05-03
+- Created [[virginia-ems-scope-of-practice-bls-als-and-cct|Virginia EMS Scope of Practice (BLS, ALS, CCT/Supplemented)]] — summarized 12VAC5-31, Code of Virginia 32.1-111.1, OEMS scope of practice documents for BLS/ALS/CCT transport levels. Ingested into work-knowledge domain.
