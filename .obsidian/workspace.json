@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "raw/articles/art-of-rally.md",
+                "file": "concepts/summary-test.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "art-of-rally"
+              "title": "summary-test"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "raw/articles/art-of-rally.md",
+                "file": "concepts/summary-test.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for art-of-rally"
+              "title": "Backlinks for summary-test"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "raw/articles/art-of-rally.md",
+                "file": "concepts/summary-test.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from art-of-rally"
+              "title": "Outgoing links from summary-test"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "raw/articles/art-of-rally.md",
+                "file": "concepts/summary-test.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of art-of-rally"
+              "title": "Outline of summary-test"
             }
           },
           {
@@ -196,11 +196,21 @@
   },
   "active": "65f0f2d6dcff1bf2",
   "lastOpenFiles": [
+    "raw/articles/summary-test.md",
+    "raw/articles/sample-article.md",
+    "raw/articles/art-of-rally.md",
+    "raw/clippings_archive/summary_test.md",
+    "raw/clippings_archive",
+    "raw/articles/test-clipping.md",
+    "memory/2026-05-03.md",
+    "memory",
+    "concepts/test-clipping.md",
+    "concepts/summary-test.md",
+    "Clippings",
     "entities/art-of-rally.md",
     "concepts/art-of-rally.md",
     "research/note_gpu_advisory.md",
     "raw/articles/article.md",
-    "raw/articles/art-of-rally.md",
     "raw/articles/pkm-overview.md",
     "raw/articles/iso-8601-date-and-time-format.md",
     "raw/articles/chase-sapphire-eligibility-for-sapphire-reserve.md",
@@ -209,7 +219,6 @@
     "Clippings/Art of Rally.md",
     "scripts/ebay_gpu_watch.py",
     "raw/articles/sample.md",
-    "raw/articles/sample-article.md",
     "raw/transcripts/discord-note-20260502-105023.md",
     "raw/transcripts/discord-note-20260502-150341.md",
     "scripts/ingest_clippings.py",
@@ -218,7 +227,6 @@
     "ingest-now.sh",
     "concepts/domain.md",
     "SCHEMA.md",
-    "Clippings",
     "raw/Clippings"
   ]
 }
