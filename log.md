@@ -32,3 +32,4 @@ title: Wiki Log
 ## Clipping ingest: test_clipping (domain=personal-knowledge, tags=['article'])
 ## Clipping ingest: summary_test (domain=personal-knowledge, tags=['article'])
 ## Clipping ingest: personal-knowledge-dryrun (domain=personal-knowledge, tags=['article'])
+## Discord note ingest: Virginia EMS Scope of Practice: BLS, ALS, and CCT/ (domain=work-knowledge, tags=['ems', 'scope-of-practice', 'virginia', 'regulation', 'bls', 'als', 'critical-care'])
